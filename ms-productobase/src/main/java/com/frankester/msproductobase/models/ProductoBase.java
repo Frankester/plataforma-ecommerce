@@ -3,6 +3,7 @@ package com.frankester.msproductobase.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class ProductoBase {
 
     private String nombre;
     private String descripcion;
-    private Integer precio;
+    private BigDecimal precio;
 
     @Column(name="tiempo_estimado_fabricacion", columnDefinition = "TIME")
     private LocalTime tiempoDeFabricacion;

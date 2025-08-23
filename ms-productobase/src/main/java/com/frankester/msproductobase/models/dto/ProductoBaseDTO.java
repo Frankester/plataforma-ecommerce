@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 public class ProductoBaseDTO {
     private String nombre;
-    private PosiblePersonalizacion posiblePersonalizacion;
+    private PosiblePersonalizacionDTO posiblePersonalizacion;
     
 }

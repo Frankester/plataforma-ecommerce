@@ -5,6 +5,7 @@ import com.frankester.msproductobase.exceptions.PosiblePersonalizacionNotFoundEx
 import com.frankester.msproductobase.exceptions.ProductoBaseNotFoundException;
 import com.frankester.msproductobase.models.PosiblePersonalizacion;
 import com.frankester.msproductobase.models.ProductoBase;
+import com.frankester.msproductobase.models.dto.PosiblePersonalizacionDTO;
 import com.frankester.msproductobase.models.dto.ProductoBaseDTO;
 import com.frankester.msproductobase.repositories.RepoProductoBase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,13 @@ import java.util.Optional;
 @RepositoryRestController
 public class ProductoBaseControllerComplement {
 
+
+    private final RepoProductoBase repo;
+
     @Autowired
-    RepoProductoBase repo;
+    public ProductoBaseControllerComplement(RepoProductoBase repo) {
+        this.repo = repo;
+    }
 
     @DeleteMapping("productos_base/{idProductoBase}")
     public ResponseEntity<Object> borradoLogico(@PathVariable Long idProductoBase) throws ProductoBaseNotFoundException{
@@ -47,7 +53,7 @@ public class ProductoBaseControllerComplement {
     @PostMapping("productos_base/{idProductoBase}/posiblePersonalizaciones")
     public ResponseEntity<Object> agregarPosiblePersonalizacion(
             @PathVariable Long idProductoBase,
-            @RequestBody PosiblePersonalizacion  posiblePersonalizacion//TODO change this to DTO
+            @RequestBody PosiblePersonalizacionDTO posiblePersonalizacionDTO
     ) throws ProductoBaseNotFoundException, PosiblePersonalizacionExistenteException {
         Optional<ProductoBase> productoBaseOp = repo.findById(idProductoBase);
 
@@ -56,6 +62,10 @@ public class ProductoBaseControllerComplement {
         }
 
         ProductoBase productoBase = productoBaseOp.get();
+
+        PosiblePersonalizacion posiblePersonalizacion = new PosiblePersonalizacion();
+        posiblePersonalizacion.setAreaPersonalizacion(posiblePersonalizacionDTO.getAreaPersonalizacion());
+        posiblePersonalizacion.setTipoPersonalizacion(posiblePersonalizacionDTO.getTipoPersonalizacion());
 
         productoBase.agregarPosiblesPersonalizacion(posiblePersonalizacion);
 
@@ -78,7 +88,7 @@ public class ProductoBaseControllerComplement {
 
         List<PosiblePersonalizacion> posiblesPersonalizaciones = productoBase.getPosiblesPersonalizaciones(); 
 
-        PosiblePersonalizacion posiblePersonalizacionReq = posiblePersonalizacion.getPosiblePersonalizacion();
+        PosiblePersonalizacionDTO posiblePersonalizacionReq = posiblePersonalizacion.getPosiblePersonalizacion();
 
         boolean existePosiblePersonalizacion = posiblesPersonalizaciones.stream()
             .anyMatch(pp -> (pp.getAreaPersonalizacion().equalsIgnoreCase(posiblePersonalizacionReq.getAreaPersonalizacion()) 
