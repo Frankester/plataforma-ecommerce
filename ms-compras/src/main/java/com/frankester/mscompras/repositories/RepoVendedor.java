@@ -1,6 +1,5 @@
 package com.frankester.mscompras.repositories;
 
-import com.frankester.mscompras.models.Tienda;
 import com.frankester.mscompras.models.personas.Vendedor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
