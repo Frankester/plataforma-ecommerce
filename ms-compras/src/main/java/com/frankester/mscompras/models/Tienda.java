@@ -1,15 +1,16 @@
 package com.frankester.mscompras.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frankester.mscompras.models.compra.CarritoDeCompra;
 import com.frankester.mscompras.models.personas.Vendedor;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class Tienda extends Persistence {
 

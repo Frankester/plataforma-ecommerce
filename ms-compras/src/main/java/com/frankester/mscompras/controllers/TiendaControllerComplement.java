@@ -1,15 +1,12 @@
 package com.frankester.mscompras.controllers;
 
-import com.frankester.mscompras.exceptions.PublicacionNotFoundException;
 import com.frankester.mscompras.exceptions.TiendaNotFoundException;
 import com.frankester.mscompras.exceptions.VendedorNotFoundException;
-import com.frankester.mscompras.models.Publicacion;
 import com.frankester.mscompras.models.Tienda;
 import com.frankester.mscompras.models.dto.TiendaDTO;
 import com.frankester.mscompras.models.personas.Vendedor;
 import com.frankester.mscompras.repositories.RepoTienda;
 import com.frankester.mscompras.repositories.RepoVendedor;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;

@@ -6,12 +6,10 @@ import com.frankester.mscompras.exceptions.EmptyItemsException;
 import com.frankester.mscompras.models.Publicacion;
 import com.frankester.mscompras.models.Tienda;
 import com.frankester.mscompras.models.compra.*;
+import com.frankester.mscompras.models.compra.mediosDePago.TarjetaDebito;
 import com.frankester.mscompras.models.estados.EstadoCompra;
-import com.frankester.mscompras.models.estados.EstadoPublicacion;
 import com.frankester.mscompras.models.personas.Comprador;
 import com.frankester.mscompras.models.personas.contacto.MedioDeContacto;
-import com.frankester.mscompras.models.personas.documentos.Documento;
-import com.frankester.mscompras.models.personas.documentos.TipoDeDocumento;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,44 +29,18 @@ class CarritoDeCompraTests {
         MockitoAnnotations.openMocks(this);
     }
 
-    Comprador crearComprador(){
-        Comprador comprador = new Comprador();
-        comprador.setNombre("Franco");
-        comprador.setApellido("Callero");
-        comprador.setFechaNacimiento(LocalDate.of(2001,6,10));
-        Documento documento = new Documento(TipoDeDocumento.DNI, "43244599");
-        comprador.setDocumento(documento);
-        comprador.agregarMedioDeContacto(medioDeContactoMock);
-        return comprador;
-    }
-
-    Publicacion crearPublicacion(String nombrePublicacion, String precio, String nombreProductoBase, String nombrePersonalizacion, Tienda tienda){
-        Publicacion publicacion = new Publicacion();
-        publicacion.setNombrePublicacion(nombrePublicacion);
-        publicacion.setFechaDePublicacion(LocalDate.of(2025, 8,10));
-        publicacion.setPrecioPublicacion(new BigDecimal(precio));
-        publicacion.setEstado(EstadoPublicacion.VIRGENTE);
-        publicacion.setNombreProductoBase(nombreProductoBase);
-        publicacion.setNombrePersonalizacion(nombrePersonalizacion);
-
-
-
-        publicacion.setTienda(tienda);
-        return publicacion;
-    }
-
 
     @Test
     void sePuedeObtenerElPrecioTotalDelCarrito() throws CarritoDeCompraWithCompraException, DifferentTiendaException, EmptyItemsException {
 
-        Comprador comprador = crearComprador();
+        Comprador comprador = Utils.crearComprador();
         CarritoDeCompra carrito = new CarritoDeCompra();
 
         Tienda tienda = new Tienda();
         tienda.setNombreTienda("Tienda todo x 2 pesos");
 
 
-        Publicacion publicacion = crearPublicacion(
+        Publicacion publicacion = Utils.crearPublicacion(
                 "Remera de Homero Simpson",
                 "40.2",
                 "Remera Blanca",
@@ -79,7 +51,7 @@ class CarritoDeCompraTests {
         i.setCantidad(2);
         i.setPublicacion(publicacion);
 
-        Publicacion publicacion2 =crearPublicacion(
+        Publicacion publicacion2 = Utils.crearPublicacion(
                 "Zapatilla artística talle L",
                 "200000.2",
                 "Zapatilla blanca talle L",
@@ -102,14 +74,14 @@ class CarritoDeCompraTests {
     @Test
     void seActualizaElPrecioTotalDelCarritoCorrectamente() throws CarritoDeCompraWithCompraException, DifferentTiendaException, EmptyItemsException {
 
-        Comprador comprador = crearComprador();
+        Comprador comprador = Utils.crearComprador();
         CarritoDeCompra carrito = new CarritoDeCompra();
 
         Tienda tienda = new Tienda();
         tienda.setNombreTienda("Tienda todo x 2 pesos");
 
 
-        Publicacion publicacion = crearPublicacion(
+        Publicacion publicacion = Utils.crearPublicacion(
                 "Remera de Homero Simpson",
                 "40.2",
                 "Remera Blanca",
@@ -120,7 +92,7 @@ class CarritoDeCompraTests {
         i.setCantidad(2);
         i.setPublicacion(publicacion);
 
-        Publicacion publicacion2 =crearPublicacion(
+        Publicacion publicacion2 = Utils.crearPublicacion(
                 "Zapatilla artística talle L",
                 "200000.2",
                 "Zapatilla blanca talle L",
@@ -148,7 +120,7 @@ class CarritoDeCompraTests {
     @Test
     void noSePuedeCalcularElPrecioTotalDeUnCarritoVacio()  {
 
-        Comprador comprador = crearComprador();
+        Comprador comprador = Utils.crearComprador();
         CarritoDeCompra carrito = new CarritoDeCompra();
 
 
@@ -159,7 +131,7 @@ class CarritoDeCompraTests {
 
     @Test
     void noSePuedeAgregarItemsDeDiferentesTiendas() throws CarritoDeCompraWithCompraException, DifferentTiendaException {
-        Comprador comprador = crearComprador();
+        Comprador comprador = Utils.crearComprador();
         CarritoDeCompra carrito = new CarritoDeCompra();
 
         comprador.agregarCarrito(carrito);
@@ -170,7 +142,7 @@ class CarritoDeCompraTests {
         Tienda tienda2 = new Tienda();
         tienda2.setNombreTienda("El Zapas");
 
-        Publicacion publicacion = crearPublicacion(
+        Publicacion publicacion = Utils.crearPublicacion(
                 "Remera de Homero Simpson",
                 "40.2",
                 "Remera Blanca",
@@ -181,7 +153,7 @@ class CarritoDeCompraTests {
         i.setCantidad(2);
         i.setPublicacion(publicacion);
 
-        Publicacion publicacion2 =crearPublicacion(
+        Publicacion publicacion2 = Utils.crearPublicacion(
                 "Zapatilla artística talle L",
                 "200000.2",
                 "Zapatilla blanca talle L",
@@ -194,14 +166,12 @@ class CarritoDeCompraTests {
 
         carrito.agregarItem(i);
 
-        Assertions.assertThrows(DifferentTiendaException.class, ()->{
-            carrito.agregarItem(i2);
-        });
+        Assertions.assertThrows(DifferentTiendaException.class, ()-> carrito.agregarItem(i2));
     }
 
     @Test
     void noSePuedeModificarElCarritoComprado() throws CarritoDeCompraWithCompraException, DifferentTiendaException {
-        Comprador comprador = crearComprador();
+        Comprador comprador = Utils.crearComprador();
         CarritoDeCompra carrito = new CarritoDeCompra();
 
         comprador.agregarCarrito(carrito);
@@ -212,7 +182,7 @@ class CarritoDeCompraTests {
         Tienda tienda2 = new Tienda();
         tienda2.setNombreTienda("El Zapas");
 
-        Publicacion publicacion = crearPublicacion(
+        Publicacion publicacion = Utils.crearPublicacion(
                 "Remera de Homero Simpson",
                 "40.2",
                 "Remera Blanca",
@@ -223,7 +193,7 @@ class CarritoDeCompraTests {
         i.setCantidad(2);
         i.setPublicacion(publicacion);
 
-        Publicacion publicacion2 =crearPublicacion(
+        Publicacion publicacion2 = Utils.crearPublicacion(
                 "Zapatilla artística talle L",
                 "200000.2",
                 "Zapatilla blanca talle L",
@@ -241,12 +211,16 @@ class CarritoDeCompraTests {
         compra.setEstadoCompra(EstadoCompra.PENDIENTE);
         compra.setFechaInicio(LocalDate.of(2025,10,12));
         FormaDePago formaDePago = new FormaDePago();
-        formaDePago.setNumeroTarjeta("12345783242");
         formaDePago.setTipoMoneda("AR$");
-        formaDePago.setCodigoDeSeguridad("123");
-        MedioDePago medioDePago = new MedioDePago();
-        medioDePago.setMedioDePago("Tarjeta de débito MasterCard");
-        formaDePago.setMedioDePago(medioDePago);
+
+        TarjetaDebito tarjetaDebito = new TarjetaDebito();
+        tarjetaDebito.setTipoDeTarjeta("MasterCard");
+        tarjetaDebito.setCodigoDeSeguridad("123");
+        tarjetaDebito.setNumeroTarjeta("12345783242");
+        tarjetaDebito.setNombreTitular("Franco");
+        tarjetaDebito.setApellidoTitular("Callero");
+
+        formaDePago.setMedioDePago(tarjetaDebito);
         compra.setFormaPago(formaDePago);
 
         carrito.setCompra(compra);

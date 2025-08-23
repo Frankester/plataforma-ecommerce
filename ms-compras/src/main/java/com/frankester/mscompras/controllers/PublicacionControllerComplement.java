@@ -1,14 +1,12 @@
 package com.frankester.mscompras.controllers;
 
 import com.frankester.mscompras.clients.ProductoPersonalizadoProxy;
-import com.frankester.mscompras.exceptions.CompradorNotFoundException;
 import com.frankester.mscompras.exceptions.PublicacionNotFoundException;
 import com.frankester.mscompras.exceptions.TiendaNotFoundException;
 import com.frankester.mscompras.models.Publicacion;
 import com.frankester.mscompras.models.Tienda;
 import com.frankester.mscompras.models.dto.ProductoPersonalizadoDTO;
 import com.frankester.mscompras.models.dto.PublicacionDTO;
-import com.frankester.mscompras.models.personas.Comprador;
 import com.frankester.mscompras.repositories.RepoPublicaciones;
 import com.frankester.mscompras.repositories.RepoTienda;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -28,14 +26,16 @@ import java.util.Optional;
 @RepositoryRestController(path = "publicaciones")
 public class PublicacionControllerComplement {
 
-    @Autowired
-    RepoPublicaciones repo;
+    private final RepoPublicaciones repo;
+    private final RepoTienda repoTienda;
+    private final ProductoPersonalizadoProxy proxy;
 
     @Autowired
-    RepoTienda repoTienda;
-
-    @Autowired
-    ProductoPersonalizadoProxy proxy;
+    public PublicacionControllerComplement(RepoPublicaciones repo, RepoTienda repoTienda, ProductoPersonalizadoProxy proxy) {
+        this.repo = repo;
+        this.repoTienda = repoTienda;
+        this.proxy = proxy;
+    }
 
     @Retry(name = "default", fallbackMethod = "serviceDisable")
     @PostMapping

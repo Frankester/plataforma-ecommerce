@@ -2,12 +2,14 @@ package com.frankester.mscompras.models;
 
 import com.frankester.mscompras.models.estados.EstadoPublicacion;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class Publicacion extends Persistence {
 

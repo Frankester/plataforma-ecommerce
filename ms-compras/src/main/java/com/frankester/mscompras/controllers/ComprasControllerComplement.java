@@ -3,8 +3,10 @@ package com.frankester.mscompras.controllers;
 import com.frankester.mscompras.exceptions.*;
 import com.frankester.mscompras.models.Tienda;
 import com.frankester.mscompras.models.compra.*;
+import com.frankester.mscompras.models.compra.mediosDePago.TarjetaDebito;
 import com.frankester.mscompras.models.dto.CompraDTO;
 import com.frankester.mscompras.models.dto.ConfirmarCompraDTO;
+import com.frankester.mscompras.models.dto.TarjetaDebitoDTO;
 import com.frankester.mscompras.models.estados.EstadoCompra;
 import com.frankester.mscompras.models.personas.Comprador;
 import com.frankester.mscompras.models.personas.Vendedor;
@@ -24,22 +26,23 @@ import java.util.Optional;
 @RepositoryRestController(path ="compras")
 public class ComprasControllerComplement {
 
-    @Autowired
-    RepoCompra repo;
+    private final RepoCompra repo;
+
+    private final RepoCompradores repoCompradores;
+
+    private final RepoVendedor repoVendedores;
 
     @Autowired
-    RepoCompradores repoCompradores;
-
-    @Autowired
-    RepoVendedor repoVendedores;
-
-    @Autowired
-    RepoCarritoDeCompra repoCarritoDeCompra;
+    public ComprasControllerComplement(RepoCompra repo, RepoCompradores repoCompradores, RepoVendedor repoVendedores){
+        this.repo = repo;
+        this.repoCompradores = repoCompradores;
+        this.repoVendedores = repoVendedores;
+    }
 
     @Transactional
     @PostMapping
     public ResponseEntity<Object> agregarCompra(@RequestBody CompraDTO compra)
-    throws CompradorNotFoundException, CarritoDeCompraNotFoundException{
+            throws CompradorNotFoundException, CarritoDeCompraNotFoundException, MedioDePagoSinDefinirException {
 
         Optional<Comprador> compradorOp = repoCompradores.findById(compra.getCompradorId());
 
@@ -53,17 +56,26 @@ public class ComprasControllerComplement {
             throw new CompradorNotFoundException();
         }
 
-        MedioDePago medioDePago = new MedioDePago();
-        medioDePago.setMedioDePago(compra.getMedioDePago());
-
-        FormaDePago formaDePago = new FormaDePago();
-        formaDePago.setMedioDePago(medioDePago);
-        formaDePago.setNumeroTarjeta(compra.getNumeroTarjeta());
-        formaDePago.setCodigoDeSeguridad(compra.getCodigoDeSeguridad());
-        formaDePago.setTipoMoneda(compra.getTipoMoneda());
-
         Compra nuevaCompra = new Compra();
-        nuevaCompra.setFormaPago(formaDePago);
+        //agrear metodos de pago aca
+        if(compra instanceof TarjetaDebitoDTO){
+            TarjetaDebito medioDePago = new TarjetaDebito();
+            medioDePago.setTipoDeTarjeta(((TarjetaDebitoDTO) compra).getTipoDeTarjeta());
+            medioDePago.setNumeroTarjeta(((TarjetaDebitoDTO) compra).getNumeroTarjeta());
+            medioDePago.setCodigoDeSeguridad(((TarjetaDebitoDTO) compra).getCodigoDeSeguridad());
+            medioDePago.setNombreTitular(((TarjetaDebitoDTO) compra).getNombreTitular());
+            medioDePago.setApellidoTitular(((TarjetaDebitoDTO) compra).getApellidoTitular());
+
+            FormaDePago formaDePago = new FormaDePago();
+            formaDePago.setMedioDePago(medioDePago);
+            formaDePago.setTipoMoneda(compra.getTipoMoneda());
+
+
+            nuevaCompra.setFormaPago(formaDePago);
+        } else {
+            throw new MedioDePagoSinDefinirException();
+        }
+
 
         Long carritoDeCompraId = compra.getCarritoDeCompraId();
 
@@ -119,7 +131,7 @@ public class ComprasControllerComplement {
 
         Tienda tiendaCompra = carrito.getItems().get(0).getPublicacion().getTienda();
 
-        if(!tiendaCompra.getVendedor().equals(vendedor)){
+        if(!tiendaCompra.getVendedor().getCuil().equals(vendedor.getCuil())){
             throw new VendedorNotPermittedException("Los items no pertenecen a este vendedor");
         }
 

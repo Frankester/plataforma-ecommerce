@@ -47,7 +47,8 @@ public class CarritoDeCompra extends Persistence {
         if(!items.isEmpty()){
             Tienda tienda = items.get(0).getPublicacion().getTienda();
 
-            boolean isSameStore = nuevoItem.getPublicacion().getTienda().equals(tienda);
+            Tienda tiendaNuevoItem = nuevoItem.getPublicacion().getTienda();
+            boolean isSameStore = tiendaNuevoItem.getNombreTienda().equals(tienda.getNombreTienda());
 
             if(!isSameStore){
                 throw new DifferentTiendaException("Todos los items deben pertenecer a publicaciones de la misma tienda");

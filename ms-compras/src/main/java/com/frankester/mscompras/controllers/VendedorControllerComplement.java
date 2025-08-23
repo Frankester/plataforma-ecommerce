@@ -1,10 +1,8 @@
 package com.frankester.mscompras.controllers;
 
 import com.frankester.mscompras.exceptions.MedioDePagoAlreadyExistsException;
-import com.frankester.mscompras.exceptions.TiendaNotFoundException;
 import com.frankester.mscompras.exceptions.VendedorNotFoundException;
-import com.frankester.mscompras.models.Tienda;
-import com.frankester.mscompras.models.compra.MedioDePago;
+import com.frankester.mscompras.models.compra.mediosDePago.MedioDePago;
 import com.frankester.mscompras.models.personas.Vendedor;
 import com.frankester.mscompras.repositories.RepoVendedor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,7 @@ public class VendedorControllerComplement {
     public ResponseEntity<Object> agregarMediosDePago(
             @RequestBody List<MedioDePago> mediosDePago,
             @PathVariable Long idVendedor
-    ) throws VendedorNotFoundException, MedioDePagoAlreadyExistsException {
+    ) throws VendedorNotFoundException {
         Optional<Vendedor> vendedorOp = this.repo.findById(idVendedor);
 
         if(vendedorOp.isEmpty()){

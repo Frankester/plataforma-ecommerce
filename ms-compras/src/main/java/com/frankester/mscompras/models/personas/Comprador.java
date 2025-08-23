@@ -1,6 +1,5 @@
 package com.frankester.mscompras.models.personas;
 
-import com.frankester.mscompras.models.Persistence;
 import com.frankester.mscompras.models.compra.CarritoDeCompra;
 import jakarta.persistence.*;
 import lombok.Data;

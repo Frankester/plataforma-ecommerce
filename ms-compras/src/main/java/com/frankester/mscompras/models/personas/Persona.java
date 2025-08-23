@@ -1,7 +1,6 @@
 package com.frankester.mscompras.models.personas;
 
 import com.frankester.mscompras.models.Persistence;
-import com.frankester.mscompras.models.compra.MedioDePago;
 import com.frankester.mscompras.models.personas.contacto.MedioDeContacto;
 import com.frankester.mscompras.models.personas.documentos.Documento;
 import jakarta.persistence.*;

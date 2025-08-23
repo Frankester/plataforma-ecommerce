@@ -1,9 +1,6 @@
 package com.frankester.mscompras.models.personas;
 
-import com.frankester.mscompras.exceptions.MedioDePagoAlreadyExistsException;
-import com.frankester.mscompras.models.compra.MedioDePago;
-import com.frankester.mscompras.models.Persistence;
-import com.frankester.mscompras.models.Tienda;
+import com.frankester.mscompras.models.compra.mediosDePago.MedioDePago;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,15 +27,7 @@ public class Vendedor extends Persona {
     }
 
 
-    public void agregarMedioDePago(MedioDePago medioDePago) throws  MedioDePagoAlreadyExistsException{
-
-        boolean isExistMedioDePago = this.mediosDePago.stream().anyMatch(mp -> mp.getMedioDePago().equalsIgnoreCase(medioDePago.getMedioDePago()));
-
-        if(isExistMedioDePago){
-            throw new MedioDePagoAlreadyExistsException("El vendedor ya posee ese medio de pago");
-        }
-
-
+    public void agregarMedioDePago(MedioDePago medioDePago){
         this.mediosDePago.add(medioDePago);
     }
 

@@ -4,9 +4,7 @@ import com.frankester.mscompras.exceptions.*;
 import com.frankester.mscompras.models.Publicacion;
 import com.frankester.mscompras.models.Tienda;
 import com.frankester.mscompras.models.compra.CarritoDeCompra;
-import com.frankester.mscompras.models.compra.Compra;
 import com.frankester.mscompras.models.compra.Item;
-import com.frankester.mscompras.models.dto.CarritoResponse;
 import com.frankester.mscompras.models.dto.ItemDTO;
 import com.frankester.mscompras.models.personas.Comprador;
 import com.frankester.mscompras.repositories.RepoCarritoDeCompra;
@@ -27,18 +25,19 @@ import java.util.Optional;
 @RepositoryRestController(path = "compradores")
 public class CompradoresControllerComplement {
 
-    @Autowired
     RepoCompradores repo;
-
-    @Autowired
     RepoTienda repoTienda;
-
-    @Autowired
     RepoPublicaciones repoPublicaciones;
-
-    @Autowired
     RepoCarritoDeCompra repoCarrito;
 
+
+    @Autowired
+    public CompradoresControllerComplement(RepoCompradores repoCompradores, RepoTienda repoTienda, RepoPublicaciones repoPublicaciones, RepoCarritoDeCompra repoCarrito){
+        this.repo = repoCompradores;
+        this.repoTienda = repoTienda;
+        this.repoPublicaciones = repoPublicaciones;
+        this.repoCarrito = repoCarrito;
+    }
 
     @Transactional
     @PostMapping(path = "/{idComprador}/carritos/{idCarrito}")
@@ -96,9 +95,8 @@ public class CompradoresControllerComplement {
         comprador.agregarCarrito(carritoDeCompra);
 
 
-        this.repoTienda.save(tienda);
+        this.repoTienda.save(tienda); //actualizo la tabla de la tienda por si acaso
         this.repo.save(comprador);
-
 
         return ResponseEntity.ok(item);
     }

@@ -23,15 +23,17 @@ import java.util.Optional;
 @RepositoryRestController(path="carritos")
 public class CarritoDeCompraControllerComplement {
 
+    private final RepoCarritoDeCompra repo;
+    private final RepoCompradores repoCompradores;
+
+    private final RepoPublicaciones repoPublicaciones;
 
     @Autowired
-    RepoCarritoDeCompra repo;
-
-    @Autowired
-    RepoCompradores repoCompradores;
-
-    @Autowired
-    RepoPublicaciones repoPublicaciones;
+    public CarritoDeCompraControllerComplement(RepoCarritoDeCompra repo, RepoCompradores repoCompradores, RepoPublicaciones repoPublicaciones) {
+        this.repo = repo;
+        this.repoCompradores = repoCompradores;
+        this.repoPublicaciones = repoPublicaciones;
+    }
 
     @PostMapping
     public ResponseEntity<Object> createCarrito(
@@ -64,6 +66,10 @@ public class CarritoDeCompraControllerComplement {
             nuevoItem.setCantidad(itemDTO.getCantidad());
 
             Optional<Publicacion> publicacionOP = repoPublicaciones.findById(itemDTO.getIdPublicacion());
+
+            if(publicacionOP.isEmpty()){
+                throw new PublicacionNotFoundException();
+            }
 
             Publicacion publicacion = publicacionOP.get();
 
