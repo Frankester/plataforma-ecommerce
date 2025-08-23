@@ -4,17 +4,16 @@ import com.frankester.mscompras.models.Persistence;
 import com.frankester.mscompras.models.compra.CarritoDeCompra;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
-public class Comprador extends Persistence {
-
-    private String nombre;
-    private String apellido;
-    private String telefono;
+public class Comprador extends Persona {
 
     @OneToMany( mappedBy = "comprador")
     private List<CarritoDeCompra> carritos;

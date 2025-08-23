@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @MappedSuperclass
-public class Persistence {
+public abstract class Persistence {
 
     @Id
     @GeneratedValue

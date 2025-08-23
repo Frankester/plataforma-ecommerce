@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -56,7 +57,7 @@ public class PublicacionControllerComplement {
 
         ResponseEntity<ProductoPersonalizadoDTO> prodPersonalizadoRes = proxy.findByProductoPersonalizadoNombre(nuevaPublicacion.getNombreProductoBase(), nuevaPublicacion.getNombrePersonalizacion());
 
-        Integer precioPublicacion = prodPersonalizadoRes.getBody().getPrecio();
+        BigDecimal precioPublicacion = prodPersonalizadoRes.getBody().getPrecio();
 
         Publicacion publicacion = new Publicacion();
         publicacion.setNombrePublicacion(nuevaPublicacion.getNombrePublicacion());

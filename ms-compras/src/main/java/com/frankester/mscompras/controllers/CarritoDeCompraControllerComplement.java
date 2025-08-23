@@ -134,6 +134,10 @@ public class CarritoDeCompraControllerComplement {
 
             Optional<Publicacion> publicacionOP = repoPublicaciones.findById(itemDTO.getIdPublicacion());
 
+            if(publicacionOP.isEmpty()){
+                throw new PublicacionNotFoundException("Algunos items tienen publicaciones que no existen");
+            }
+
             Publicacion publicacion = publicacionOP.get();
 
             nuevoItem.setPublicacion(publicacion);

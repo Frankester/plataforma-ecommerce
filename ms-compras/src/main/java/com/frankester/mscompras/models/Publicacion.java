@@ -4,6 +4,7 @@ import com.frankester.mscompras.models.estados.EstadoPublicacion;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -25,7 +26,7 @@ public class Publicacion extends Persistence {
     @JoinColumn(name="id_tienda", referencedColumnName = "id")
     private Tienda tienda;
 
-    private Integer precioPublicacion;
+    private BigDecimal precioPublicacion;
     private boolean activo;
 
 

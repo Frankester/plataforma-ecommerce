@@ -5,23 +5,22 @@ import com.frankester.mscompras.models.compra.MedioDePago;
 import com.frankester.mscompras.models.Persistence;
 import com.frankester.mscompras.models.Tienda;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 @Entity
-public class Vendedor extends Persistence {
-
-    private String nombre;
-    private String apellido;
-    private String telefono;
-    private String cuil;
+public class Vendedor extends Persona {
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "id_vendedor", referencedColumnName = "id")
     private List<MedioDePago> mediosDePago;
+
+    private String cuil;
 
     private boolean activo;
 

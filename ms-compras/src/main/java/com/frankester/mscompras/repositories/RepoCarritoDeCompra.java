@@ -4,7 +4,6 @@ import com.frankester.mscompras.models.compra.CarritoDeCompra;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
-import org.springframework.stereotype.Repository;
 
 @RepositoryRestResource(path = "carritos")
 public interface RepoCarritoDeCompra extends JpaRepository<CarritoDeCompra, Long> {

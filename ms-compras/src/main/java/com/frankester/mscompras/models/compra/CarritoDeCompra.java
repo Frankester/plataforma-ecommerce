@@ -7,13 +7,15 @@ import com.frankester.mscompras.models.Persistence;
 import com.frankester.mscompras.models.Tienda;
 import com.frankester.mscompras.models.personas.Comprador;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class CarritoDeCompra extends Persistence {
 
@@ -56,19 +58,17 @@ public class CarritoDeCompra extends Persistence {
         this.items.add(nuevoItem);
     }
 
-    public Integer calcularPrecioTotal() throws EmptyItemsException{
+    public BigDecimal calcularPrecioTotal() throws EmptyItemsException{
         if(this.items.isEmpty()){
             throw new EmptyItemsException("El carrito de compra no posee items");
         }
 
-        Integer precioFinal = 0;
+        BigDecimal precioFinal = new BigDecimal("0") ;
 
-        Iterator<Item> itemIterator = items.iterator();
-        while(itemIterator.hasNext()){
-            Item item = itemIterator.next();
+        for (Item item : items) {
+            BigDecimal precioPublicacion = item.getPublicacion().getPrecioPublicacion();
 
-            Integer precioPublicacion = item.getPublicacion().getPrecioPublicacion();
-            precioFinal += precioPublicacion * item.getCantidad();
+            precioFinal = precioFinal.add(precioPublicacion.multiply(new BigDecimal(item.getCantidad())));
         }
 
         return precioFinal;
