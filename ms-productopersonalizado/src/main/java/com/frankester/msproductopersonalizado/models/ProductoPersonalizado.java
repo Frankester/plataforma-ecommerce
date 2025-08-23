@@ -3,6 +3,8 @@ package com.frankester.msproductopersonalizado.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @Entity
 public class ProductoPersonalizado {
@@ -17,7 +19,7 @@ public class ProductoPersonalizado {
     @JoinColumn(name="id_personalizacion", referencedColumnName = "id")
     private Personalizacion personalizacion;
 
-    private Integer precio;
+    private BigDecimal precio;
 
     private boolean activo;
 

@@ -1,7 +1,7 @@
 package com.frankester.msproductopersonalizado.clients;
 
 import com.frankester.msproductopersonalizado.models.dto.ProductoBaseDTO;
-import com.frankester.msproductopersonalizado.models.dto.ProductoBaseDTO2;
+import com.frankester.msproductopersonalizado.models.dto.ProductoBasePrecioDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +18,6 @@ public interface ProxyProductoBase {
     Optional<Object> findByProductoBase(@RequestParam(required = true, name = "nombreProducto") String nombreProductoBase);
 
     @PostMapping("productos_base/search/findByPosiblePersonalizacion")
-     ResponseEntity<ProductoBaseDTO2> findByPosiblePersonalizacion(@RequestBody ProductoBaseDTO posiblePersonalizacion);
+     ResponseEntity<ProductoBasePrecioDTO> findByPosiblePersonalizacion(@RequestBody ProductoBaseDTO posiblePersonalizacion);
 
 }

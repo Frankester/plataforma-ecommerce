@@ -2,16 +2,12 @@ package com.frankester.msproductopersonalizado.controllers;
 
 import com.frankester.msproductopersonalizado.clients.ProxyCompras;
 import com.frankester.msproductopersonalizado.clients.ProxyProductoBase;
-import com.frankester.msproductopersonalizado.exceptions.PosiblePersonalizacionNotFoundException;
-import com.frankester.msproductopersonalizado.exceptions.ProductoBaseNotFoundException;
 import com.frankester.msproductopersonalizado.exceptions.ProductoPersonalizadoNotFoundException;
 import com.frankester.msproductopersonalizado.models.dto.ProductoBaseDTO;
-import com.frankester.msproductopersonalizado.models.dto.ProductoBaseDTO2;
-import com.netflix.discovery.converters.Auto;
+import com.frankester.msproductopersonalizado.models.dto.ProductoBasePrecioDTO;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,27 +22,28 @@ import com.frankester.msproductopersonalizado.models.ProductoPersonalizado;
 import com.frankester.msproductopersonalizado.models.dto.ProductoPersonalizadoDTO;
 import com.frankester.msproductopersonalizado.repositories.RepoProductoPersonalizado;
 
+import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.util.List;
 import java.util.Optional;
 
 @RepositoryRestController(path= "productos_personalizados")
 public class ProductoPersonalizadoControllerComplement {
-    
-    @Autowired
-    RepoProductoPersonalizado repo;
+    private final RepoProductoPersonalizado repo;
+    private final ProxyProductoBase proxy;
+    private final ProxyCompras proxyCompras;
 
     @Autowired
-    ProxyProductoBase proxy;
-
-    @Autowired
-    ProxyCompras proxyCompras;
+    public ProductoPersonalizadoControllerComplement(RepoProductoPersonalizado repo, ProxyProductoBase proxy, ProxyCompras proxyCompras) {
+        this.repo = repo;
+        this.proxy = proxy;
+        this.proxyCompras = proxyCompras;
+    }
 
     @Retry(name = "default",fallbackMethod = "servicioNoDisponibleFallback")
     @PostMapping
     public ResponseEntity<Object> crearProductoPersonalizado(
-            @RequestBody ProductoPersonalizadoDTO productoPersonalizadoReq
-    ) throws ProductoBaseNotFoundException, PosiblePersonalizacionNotFoundException {
+            @RequestBody ProductoPersonalizadoDTO productoPersonalizadoReq ) {
 
         proxyCompras.existVendedorByCuil(productoPersonalizadoReq.getVendedorCuil());
 
@@ -55,9 +52,9 @@ public class ProductoPersonalizadoControllerComplement {
         productoBaseReq.setPosiblePersonalizacion(productoPersonalizadoReq.getPosiblePersonalizacion());
 
         //verifica si el producto base y la posible personalizacion existen
-        ResponseEntity<ProductoBaseDTO2> productoBaseRes = this.proxy.findByPosiblePersonalizacion(productoBaseReq);
+        ResponseEntity<ProductoBasePrecioDTO> productoBaseRes = this.proxy.findByPosiblePersonalizacion(productoBaseReq);
 
-        Integer precioBase = productoBaseRes.getBody().getPrecio();
+        BigDecimal precioBase = productoBaseRes.getBody().getPrecio();
 
         Personalizacion personalizacion = new Personalizacion();
         personalizacion.setContenido(productoPersonalizadoReq.getContenido());
@@ -70,7 +67,7 @@ public class ProductoPersonalizadoControllerComplement {
         productoPersonalizado.setNombreProductoBase(productoPersonalizadoReq.getProductoBaseNombre());
         productoPersonalizado.setCuilVendedor(productoPersonalizadoReq.getVendedorCuil());
         productoPersonalizado.setPersonalizacion(personalizacion);
-        productoPersonalizado.setPrecio(precioBase + personalizacion.getPrecio());
+        productoPersonalizado.setPrecio(precioBase.add(personalizacion.getPrecio()));
 
         return ResponseEntity.ok(repo.save(productoPersonalizado));
     }
@@ -80,7 +77,7 @@ public class ProductoPersonalizadoControllerComplement {
     public ResponseEntity<Object> getProductoPersonalizadoPorNombre(
             @RequestParam(name = "nombreProductoBase", required = true) String nombreProductoBase,
             @RequestParam(name = "personalizacion", required = true) String personalizacion
-    ) throws ProductoPersonalizadoNotFoundException, ProductoBaseNotFoundException {
+    ) throws ProductoPersonalizadoNotFoundException {
 
         //verifica si el producto base existe
        this.proxy.findByProductoBase(nombreProductoBase);
@@ -103,8 +100,6 @@ public class ProductoPersonalizadoControllerComplement {
         if(!productoPersonalizado.isActivo()){
             throw new ProductoPersonalizadoNotFoundException();
         }
-
-
 
         return ResponseEntity.ok(productoPersonalizado);
     }
@@ -145,9 +140,9 @@ public class ProductoPersonalizadoControllerComplement {
         productoBaseReq.setPosiblePersonalizacion(nuevoProductoPersonalizado.getPosiblePersonalizacion());
 
         //verifica si el producto base y la posible personalizacion existen
-        ResponseEntity<ProductoBaseDTO2> productoBaseRes = this.proxy.findByPosiblePersonalizacion(productoBaseReq);
+        ResponseEntity<ProductoBasePrecioDTO> productoBaseRes = this.proxy.findByPosiblePersonalizacion(productoBaseReq);
 
-        Integer precioBase = productoBaseRes.getBody().getPrecio();
+        BigDecimal precioBase = productoBaseRes.getBody().getPrecio();
 
         Optional<ProductoPersonalizado> productoPerosnalizadoGuardadoOp = this.repo.findById(idProductoPersonalizado);
 
@@ -171,7 +166,7 @@ public class ProductoPersonalizadoControllerComplement {
         productoPersonalizadoGuardado.setNombreProductoBase(nuevoProductoPersonalizado.getProductoBaseNombre());
         productoPersonalizadoGuardado.setCuilVendedor(nuevoProductoPersonalizado.getVendedorCuil());
         productoPersonalizadoGuardado.setPersonalizacion(personalizacion);
-        productoPersonalizadoGuardado.setPrecio(precioBase + personalizacion.getPrecio());
+        productoPersonalizadoGuardado.setPrecio(precioBase.add(personalizacion.getPrecio()));
 
         return ResponseEntity.ok(repo.save(productoPersonalizadoGuardado));
     }
