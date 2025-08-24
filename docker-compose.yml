@@ -1,0 +1,133 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - ecommerce-net
+
+  servnombres:
+    build:
+      context: ./servnombres
+    container_name: servnombres
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8761:8761"
+    environment:
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+    networks:
+      - ecommerce-net
+
+  gateway:
+    build:
+      context: ./gateway
+    container_name: gateway
+    depends_on:
+      servnombres:
+        condition: service_started
+    ports:
+      - "8765:8765"
+    environment:
+      - SPRING_APPLICATION_NAME=gateway
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTzONE=http://servnombres:8761/eureka
+      - SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_ENABLED=true
+      - SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_LOWER-CASE-SERVICE-ID=true
+      - COMPRAS_URL=http://ms-compras:8082
+      - PRODUCTOS_BASE_URL=http://ms-productobase:8080
+      - PRODUCTOS_PERSONALIZADOS_URL=http://ms-productopersonalizado:8081
+    networks:
+      - ecommerce-net
+      
+
+  ms-productobase:
+    build:
+      context: ./ms-productobase
+    container_name: ms-productobase
+    depends_on:
+      mysql:
+        condition: service_healthy
+      servnombres:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    networks:
+      - ecommerce-net
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ms-productos-base
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://servnombres:8761/eureka
+      - SPRING_JPA_HIBERNATE_DDL-AUTO=create
+      - SPRING_JPA_HIBERNATE_SHOW-SQL=true
+      - SEVER_PORT=8080
+
+
+  ms-productopersonalizado:
+    build:
+      context: ./ms-productopersonalizado
+    container_name: ms-productopersonalizado
+    depends_on:
+      mysql:
+        condition: service_healthy
+      servnombres:
+        condition: service_started
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ms-productos-personalizados
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://servnombres:8761/eureka
+      - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_MAXATTEMPTS=3
+      - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_WAITDURATION=3s
+      - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_ENABLEEXPONENTIALBACKOFF=true
+    networks:
+    - ecommerce-net
+
+  ms-compras:
+    build:
+      context: ./ms-compras
+    container_name: ms-compras
+    depends_on:
+      mysql:
+        condition: service_healthy
+      servnombres:
+        condition: service_started
+    ports:
+      - "8082:8082"
+    networks:
+      - ecommerce-net
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ms-compras
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://servnombres:8761/eureka
+      - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_MAXATTEMPTS=3
+      - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_WAITDURATION=3s
+      - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_ENABLEEXPONENTIALBACKOFF=true
+
+
+volumes:
+  mysql_data:
+
+networks:
+  ecommerce-net:
+    driver: bridge
