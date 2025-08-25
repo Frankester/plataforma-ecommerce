@@ -30,6 +30,8 @@ services:
     environment:
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
       - EUREKA_CLIENT_FETCH_REGISTRY=false
+      - MANAGEMENT_TRACING_ENABLED=TRUE
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     networks:
       - ecommerce-net
 
@@ -50,6 +52,8 @@ services:
       - COMPRAS_URL=http://ms-compras:8082
       - PRODUCTOS_BASE_URL=http://ms-productobase:8080
       - PRODUCTOS_PERSONALIZADOS_URL=http://ms-productopersonalizado:8081
+      - MANAGEMENT_TRACING_ENABLED=TRUE
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     networks:
       - ecommerce-net
       
@@ -75,7 +79,8 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://servnombres:8761/eureka
       - SPRING_JPA_HIBERNATE_DDL-AUTO=create
       - SPRING_JPA_HIBERNATE_SHOW-SQL=true
-      - SEVER_PORT=8080
+      - MANAGEMENT_TRACING_ENABLED=TRUE
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
 
 
   ms-productopersonalizado:
@@ -98,6 +103,8 @@ services:
       - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_MAXATTEMPTS=3
       - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_WAITDURATION=3s
       - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_ENABLEEXPONENTIALBACKOFF=true
+      - MANAGEMENT_TRACING_ENABLED=TRUE
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     networks:
     - ecommerce-net
 
@@ -123,7 +130,18 @@ services:
       - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_MAXATTEMPTS=3
       - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_WAITDURATION=3s
       - RESILIENCE4J_RETRY_INSTANCES_DEFAULT_ENABLEEXPONENTIALBACKOFF=true
+      - MANAGEMENT_TRACING_ENABLED=TRUE
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
 
+  zipkin:
+   image: ghcr.io/openzipkin/zipkin-slim:latest
+   container_name: zipkin
+   ports:
+     - "9411:9411"
+   networks:
+     - ecommerce-net
+   environment:
+     - STORAGE_TYPE=mem
 
 volumes:
   mysql_data:
